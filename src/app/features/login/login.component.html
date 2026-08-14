@@ -1,0 +1,60 @@
+<div class="login-page">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>SIPV2 Admin</mat-card-title>
+      <mat-card-subtitle>Inicia sesión para continuar</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
+        <mat-form-field appearance="outline" class="form-field-full">
+          <mat-label>Usuario</mat-label>
+          <input matInput formControlName="login" autocomplete="username" />
+          @if (form.controls.login.hasError('required') && form.controls.login.touched) {
+            <mat-error>El usuario es obligatorio.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field-full">
+          <mat-label>Contraseña</mat-label>
+          <input
+            matInput
+            [type]="hidePassword() ? 'password' : 'text'"
+            formControlName="password"
+            autocomplete="current-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="hidePassword.set(!hidePassword())"
+            [attr.aria-label]="'Mostrar contraseña'"
+          >
+            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (form.controls.password.hasError('required') && form.controls.password.touched) {
+            <mat-error>La contraseña es obligatoria.</mat-error>
+          }
+        </mat-form-field>
+
+        @if (errorMessage()) {
+          <p class="login-error">{{ errorMessage() }}</p>
+        }
+
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          class="login-submit"
+          [disabled]="loading()"
+        >
+          @if (loading()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            Entrar
+          }
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

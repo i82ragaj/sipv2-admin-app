@@ -1,0 +1,39 @@
+<mat-toolbar color="primary" class="shell-toolbar">
+  <span class="shell-title">SIPV2 Admin</span>
+  <span class="shell-spacer"></span>
+
+  @if (currentUser(); as user) {
+    <button mat-button [matMenuTriggerFor]="userMenu">
+      <mat-icon>account_circle</mat-icon>
+      {{ user.name }}
+    </button>
+    <mat-menu #userMenu="matMenu">
+      <div class="user-roles-hint">Rol: {{ user.roles.join(', ') }}</div>
+      <button mat-menu-item (click)="openChangePassword()">
+        <mat-icon>lock_reset</mat-icon>
+        <span>Cambiar mi contraseña</span>
+      </button>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Cerrar sesión</span>
+      </button>
+    </mat-menu>
+  }
+</mat-toolbar>
+
+<mat-sidenav-container class="shell-container">
+  <mat-sidenav mode="side" opened class="shell-sidenav">
+    <mat-nav-list>
+      @for (link of navLinks; track link.path) {
+        <a mat-list-item [routerLink]="link.path" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>{{ link.icon }}</mat-icon>
+          <span matListItemTitle>{{ link.label }}</span>
+        </a>
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="shell-content">
+    <router-outlet />
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,0 +1,19 @@
+import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { AuthService } from '../services/auth.service';
+
+// Añade el JWT (obtenido en /login) a todas las llamadas salvo el propio login.
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const authService = inject(AuthService);
+  const token = authService.token;
+
+  if (!token || req.url.endsWith('/login')) {
+    return next(req);
+  }
+
+  return next(
+    req.clone({
+      setHeaders: { Authorization: `Bearer ${token}` },
+    }),
+  );
+};

@@ -1,0 +1,73 @@
+<div class="page">
+  <div class="page-header">
+    <h1>Estado de parkings</h1>
+  </div>
+  <p class="readonly-hint">
+    <mat-icon inline="true">info</mat-icon>
+    Solo lectura: estos datos los actualiza el proceso de importación, no se editan desde aquí.
+  </p>
+
+  <mat-card class="table-card">
+    @if (loading()) {
+      <div class="spinner-container">
+        <mat-spinner diameter="40" />
+      </div>
+    } @else if (statuses().length === 0) {
+      <div class="empty-state">No hay estados de parking registrados.</div>
+    } @else {
+      <table mat-table [dataSource]="statuses()" class="full-width-table">
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>Parking</th>
+          <td mat-cell *matCellDef="let status">{{ status.id }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="active">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let status">
+            <mat-chip-set>
+              <mat-chip class="status-chip" [class.active]="status.active" [class.inactive]="!status.active">
+                {{ status.active ? 'Activo' : 'Inactivo' }}
+              </mat-chip>
+            </mat-chip-set>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="lastImported">
+          <th mat-header-cell *matHeaderCellDef>Última importación</th>
+          <td mat-cell *matCellDef="let status">
+            {{ status.lastImported ? (status.lastImported | date: 'dd/MM/yyyy HH:mm') : '—' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="lastImportedStatus">
+          <th mat-header-cell *matHeaderCellDef>Estado última importación</th>
+          <td mat-cell *matCellDef="let status">{{ status.lastImportedStatus || '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="lastImportedOk">
+          <th mat-header-cell *matHeaderCellDef>Última importación OK</th>
+          <td mat-cell *matCellDef="let status">
+            {{ status.lastImportedOk ? (status.lastImportedOk | date: 'dd/MM/yyyy HH:mm') : '—' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="lastCountTotals">
+          <th mat-header-cell *matHeaderCellDef>Último recuento de totales</th>
+          <td mat-cell *matCellDef="let status">
+            {{ status.lastCountTotals ? (status.lastCountTotals | date: 'dd/MM/yyyy HH:mm') : '—' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="lastImportedDuration">
+          <th mat-header-cell *matHeaderCellDef>Duración última importación</th>
+          <td mat-cell *matCellDef="let status">
+            {{ status.lastImportedDuration ? (status.lastImportedDuration | date: 'HH:mm:ss') : '—' }}
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    }
+  </mat-card>
+</div>
