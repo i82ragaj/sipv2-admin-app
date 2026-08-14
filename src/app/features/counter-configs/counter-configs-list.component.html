@@ -1,10 +1,15 @@
 <div class="page">
   <div class="page-header">
     <h1>Configuración de contadores</h1>
-    <button mat-flat-button color="primary" (click)="openCreate()">
-      <mat-icon>add</mat-icon>
-      Nueva configuración
-    </button>
+    <div class="page-header-actions">
+      <mat-slide-toggle [checked]="onlyActive()" (change)="onlyActive.set($event.checked)">
+        Solo activos
+      </mat-slide-toggle>
+      <button mat-flat-button color="primary" (click)="openCreate()">
+        <mat-icon>add</mat-icon>
+        Nueva configuración
+      </button>
+    </div>
   </div>
 
   <mat-card class="table-card">
@@ -12,10 +17,10 @@
       <div class="spinner-container">
         <mat-spinner diameter="40" />
       </div>
-    } @else if (counterConfigs().length === 0) {
-      <div class="empty-state">No hay configuraciones de contador registradas.</div>
+    } @else if (filteredCounterConfigs().length === 0) {
+      <div class="empty-state">No hay configuraciones que coincidan con el filtro.</div>
     } @else {
-      <table mat-table [dataSource]="counterConfigs()" class="full-width-table">
+      <table mat-table [dataSource]="filteredCounterConfigs()" class="full-width-table">
         <ng-container matColumnDef="idpk">
           <th mat-header-cell *matHeaderCellDef>Parking</th>
           <td mat-cell *matCellDef="let counterConfig">{{ counterConfig.idpk }}</td>
@@ -39,21 +44,6 @@
         <ng-container matColumnDef="counterType">
           <th mat-header-cell *matHeaderCellDef>Tipo</th>
           <td mat-cell *matCellDef="let counterConfig">{{ counterConfig.counterType || '—' }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="isActive">
-          <th mat-header-cell *matHeaderCellDef>Estado</th>
-          <td mat-cell *matCellDef="let counterConfig">
-            <mat-chip-set>
-              <mat-chip
-                class="status-chip"
-                [class.active]="counterConfig.isActive"
-                [class.inactive]="!counterConfig.isActive"
-              >
-                {{ counterConfig.isActive ? 'Activo' : 'Inactivo' }}
-              </mat-chip>
-            </mat-chip-set>
-          </td>
         </ng-container>
 
         <ng-container matColumnDef="actions">

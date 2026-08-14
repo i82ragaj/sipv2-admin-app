@@ -1,10 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 import { finalize } from 'rxjs';
@@ -22,8 +22,8 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
     MatButtonModule,
     MatIconModule,
     MatCardModule,
-    MatChipsModule,
     MatTooltipModule,
+    MatSlideToggleModule,
     MatProgressSpinnerModule,
   ],
   templateUrl: './counter-configs-list.component.html',
@@ -36,8 +36,13 @@ export class CounterConfigsListComponent implements OnInit {
 
   readonly counterConfigs = signal<CounterConfig[]>([]);
   readonly loading = signal(false);
+  readonly onlyActive = signal(true);
 
-  readonly displayedColumns = ['idpk', 'counterId', 'counterName', 'occupancyLimit', 'counterType', 'isActive', 'actions'];
+  readonly filteredCounterConfigs = computed(() =>
+    this.onlyActive() ? this.counterConfigs().filter((c) => c.isActive) : this.counterConfigs(),
+  );
+
+  readonly displayedColumns = ['idpk', 'counterId', 'counterName', 'occupancyLimit', 'counterType', 'actions'];
 
   ngOnInit(): void {
     this.load();

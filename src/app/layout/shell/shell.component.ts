@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -15,6 +15,16 @@ interface NavLink {
   label: string;
   icon: string;
 }
+
+interface NavGroup {
+  label: string;
+  // Rol (nombre de MDRol) necesario para ver el grupo; un usuario con el rol
+  // "admin" ve siempre todos los grupos, tenga o no este rol concreto.
+  requiredRole: string;
+  links: NavLink[];
+}
+
+const ADMIN_ROLE = 'admin';
 
 @Component({
   selector: 'app-shell',
@@ -40,14 +50,39 @@ export class ShellComponent {
 
   readonly currentUser = this.authService.currentUser;
 
-  readonly navLinks: NavLink[] = [
-    { path: '/users', label: 'Usuarios', icon: 'people' },
-    { path: '/roles', label: 'Roles', icon: 'admin_panel_settings' },
-    { path: '/user-roles', label: 'Roles de usuario', icon: 'assignment_ind' },
-    { path: '/parkings', label: 'Parkings', icon: 'local_parking' },
-    { path: '/parking-statuses', label: 'Estado de parkings', icon: 'monitor_heart' },
-    { path: '/counter-configs', label: 'Configuración de contadores', icon: 'tune' },
+  readonly navGroups: NavGroup[] = [
+    {
+      label: 'Seguridad',
+      requiredRole: 'security',
+      links: [
+        { path: '/users', label: 'Usuarios', icon: 'people' },
+        { path: '/roles', label: 'Roles', icon: 'admin_panel_settings' },
+      ],
+    },
+    {
+      label: 'Configuración',
+      requiredRole: 'config',
+      links: [
+        { path: '/parkings', label: 'Parkings', icon: 'local_parking' },
+        { path: '/counter-configs', label: 'Configuración de contadores', icon: 'tune' },
+      ],
+    },
+    {
+      label: 'Estado',
+      requiredRole: 'status',
+      links: [{ path: '/parking-statuses', label: 'Estado de parkings', icon: 'monitor_heart' }],
+    },
   ];
+
+  // Grupos visibles según los roles del usuario logueado: cada grupo exige su
+  // propio rol, salvo el rol "admin", que da acceso a todos los grupos.
+  readonly visibleNavGroups = computed(() => {
+    const roles = (this.currentUser()?.roles ?? []).map((role) => role.toLowerCase());
+    if (roles.includes(ADMIN_ROLE)) {
+      return this.navGroups;
+    }
+    return this.navGroups.filter((group) => roles.includes(group.requiredRole.toLowerCase()));
+  });
 
   openChangePassword(): void {
     this.dialog.open(ChangePasswordDialogComponent, { width: '420px' });

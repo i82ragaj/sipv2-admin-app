@@ -1,10 +1,15 @@
 <div class="page">
   <div class="page-header">
     <h1>Usuarios</h1>
-    <button mat-flat-button color="primary" (click)="openCreate()">
-      <mat-icon>add</mat-icon>
-      Nuevo usuario
-    </button>
+    <div class="page-header-actions">
+      <mat-slide-toggle [checked]="onlyActive()" (change)="onlyActive.set($event.checked)">
+        Solo activos
+      </mat-slide-toggle>
+      <button mat-flat-button color="primary" (click)="openCreate()">
+        <mat-icon>add</mat-icon>
+        Nuevo usuario
+      </button>
+    </div>
   </div>
 
   <mat-card class="table-card">
@@ -12,10 +17,10 @@
       <div class="spinner-container">
         <mat-spinner diameter="40" />
       </div>
-    } @else if (users().length === 0) {
-      <div class="empty-state">No hay usuarios registrados.</div>
+    } @else if (filteredUsers().length === 0) {
+      <div class="empty-state">No hay usuarios que coincidan con el filtro.</div>
     } @else {
-      <table mat-table [dataSource]="users()" class="full-width-table">
+      <table mat-table [dataSource]="filteredUsers()" class="full-width-table">
         <ng-container matColumnDef="name">
           <th mat-header-cell *matHeaderCellDef>Nombre</th>
           <td mat-cell *matCellDef="let user">{{ user.name }} {{ user.lastName }} {{ user.lastName1 }}</td>
@@ -31,20 +36,9 @@
           <td mat-cell *matCellDef="let user">{{ user.email || '—' }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="phone">
-          <th mat-header-cell *matHeaderCellDef>Teléfono</th>
-          <td mat-cell *matCellDef="let user">{{ user.phone || '—' }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="active">
-          <th mat-header-cell *matHeaderCellDef>Estado</th>
-          <td mat-cell *matCellDef="let user">
-            <mat-chip-set>
-              <mat-chip class="status-chip" [class.active]="user.active" [class.inactive]="!user.active">
-                {{ user.active ? 'Activo' : 'Inactivo' }}
-              </mat-chip>
-            </mat-chip-set>
-          </td>
+        <ng-container matColumnDef="roles">
+          <th mat-header-cell *matHeaderCellDef>Roles</th>
+          <td mat-cell *matCellDef="let user">{{ rolesFor(user.id) }}</td>
         </ng-container>
 
         <ng-container matColumnDef="actions">

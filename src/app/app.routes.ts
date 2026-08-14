@@ -25,14 +25,6 @@ export const routes: Routes = [
         title: 'Roles · SIPV2 Admin',
       },
       {
-        path: 'user-roles',
-        loadComponent: () =>
-          import('./features/user-roles/user-roles-list.component').then(
-            (m) => m.UserRolesListComponent,
-          ),
-        title: 'Roles de usuario · SIPV2 Admin',
-      },
-      {
         path: 'parkings',
         loadComponent: () =>
           import('./features/parkings/parkings-list.component').then((m) => m.ParkingsListComponent),

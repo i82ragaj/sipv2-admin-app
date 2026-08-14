@@ -1,4 +1,14 @@
 /* Estilos globales de la aplicación */
+@use '@angular/material' as mat;
+@use './m3-theme' as theme;
+
+// Tema Material generado a partir de la paleta de marca ESParking
+// (ver src/m3-theme.scss, regenerado con `ng generate @angular/material:m3-theme`).
+html {
+  @include mat.core();
+  @include mat.all-component-themes(theme.$light-theme);
+}
+
 html,
 body {
   height: 100%;
@@ -8,6 +18,25 @@ body {
 body {
   font-family: Roboto, 'Helvetica Neue', sans-serif;
   background-color: #f4f5f7;
+}
+
+// Colores de marca reutilizables fuera del sistema de tokens de Material
+// (extraídos de assets/logos/esparking_logo.svg)
+:root {
+  --brand-navy: #0b2e6b;
+  --brand-blue: #1e4fa3;
+  --brand-teal: #1e8c7e;
+  --brand-teal-light: #3fbfae;
+  --brand-flag-red: #e63946;
+  --brand-flag-yellow: #f1c40f;
+  --brand-gradient: linear-gradient(
+    90deg,
+    var(--brand-navy) 0%,
+    var(--brand-blue) 35%,
+    var(--brand-teal-light) 70%,
+    var(--brand-flag-yellow) 88%,
+    var(--brand-flag-red) 100%
+  );
 }
 
 * {
@@ -32,7 +61,15 @@ body {
     font-size: 22px;
     font-weight: 500;
     margin: 0;
+    color: var(--brand-navy);
   }
+}
+
+.page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .table-card {
@@ -41,6 +78,11 @@ body {
 
 .full-width-table {
   width: 100%;
+  --mat-table-header-container-height: 40px;
+
+  .mat-mdc-header-row {
+    background-color: rgba(30, 140, 126, 0.06);
+  }
 }
 
 .spinner-container {
@@ -65,8 +107,8 @@ body {
 
 .status-chip {
   &.active {
-    background-color: #e6f4ea;
-    color: #1e7e34;
+    background-color: rgba(30, 140, 126, 0.14);
+    color: var(--brand-teal);
   }
 
   &.inactive {

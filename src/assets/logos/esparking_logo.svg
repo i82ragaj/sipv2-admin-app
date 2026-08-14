@@ -1,0 +1,47 @@
+<svg viewBox="0 0 400 140" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="carGrad16" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3FBFAE"/>
+      <stop offset="100%" stop-color="#1E8C7E"/>
+    </linearGradient>
+  </defs>
+
+  <!-- subtle thin lines echoing Spain colors, now above the title -->
+  <rect x="10" y="16" width="20" height="2.4" fill="#E63946" opacity="0.85"/>
+  <rect x="32" y="16" width="20" height="2.4" fill="#F1C40F" opacity="0.85"/>
+
+  <!-- Wordmark -->
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="8" y="70" font-size="46" font-weight="800" fill="#0B2E6B">ES<tspan fill="#1E4FA3">Parking</tspan></text>
+    <text x="10" y="92" font-size="13" font-weight="600" fill="#5B6B82" letter-spacing="1">SOLUCIONES DE APARCAMIENTO</text>
+  </g>
+
+  <!-- Linear car icon, aligned with the raised layout -->
+  <g transform="translate(282, -34)">
+    <g fill="none" stroke="url(#carGrad16)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M0 100
+               q0 -11 11 -13
+               l13 -2
+               q8 -14 23 -14
+               q15 0 23 14
+               l13 2
+               q11 2 11 13
+               v8
+               q0 6 -6 6
+               h-8
+               a9 9 0 0 1 -19 0
+               h-27
+               a9 9 0 0 1 -19 0
+               h-8
+               q-6 0 -6 -6
+               z" />
+      <path d="M26 88 q4 -9 17 -9 q13 0 17 9" />
+    </g>
+
+    <!-- gentle rest lines beside the car -->
+    <g stroke="#3FBFAE" stroke-width="3" stroke-linecap="round" opacity="0.8">
+      <path d="M75 119 q6 3 12 0" fill="none"/>
+      <path d="M81 125 q4 2 8 0" fill="none"/>
+    </g>
+  </g>
+</svg>

@@ -1,10 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 import { finalize } from 'rxjs';
@@ -22,8 +22,8 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
     MatButtonModule,
     MatIconModule,
     MatCardModule,
-    MatChipsModule,
     MatTooltipModule,
+    MatSlideToggleModule,
     MatProgressSpinnerModule,
   ],
   templateUrl: './parkings-list.component.html',
@@ -36,8 +36,13 @@ export class ParkingsListComponent implements OnInit {
 
   readonly parkings = signal<Parking[]>([]);
   readonly loading = signal(false);
+  readonly onlyActive = signal(true);
 
-  readonly displayedColumns = ['id', 'name', 'type', 'company', 'srv', 'active', 'actions'];
+  readonly filteredParkings = computed(() =>
+    this.onlyActive() ? this.parkings().filter((parking) => parking.active) : this.parkings(),
+  );
+
+  readonly displayedColumns = ['id', 'name', 'type', 'company', 'srv', 'actions'];
 
   ngOnInit(): void {
     this.load();

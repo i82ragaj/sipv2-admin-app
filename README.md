@@ -41,9 +41,8 @@ src/app/
   layout/shell/      toolbar + menú lateral de navegación
   features/
     login/           formulario de login (POST /login)
-    users/           CRUD de usuarios (api/users)
+    users/           CRUD de usuarios (api/users); el propio formulario de edición asigna/quita roles (api/user-roles)
     roles/           CRUD de roles (api/roles)
-    user-roles/       asignación de roles a usuarios (api/user-roles) — el PUT solo activa/desactiva
     parkings/        CRUD de parkings (api/parkings, Id de tipo string)
     parking-statuses/ solo lectura (api/parking-statuses)
     counter-configs/  CRUD de configuración de contadores (api/counter-configs)
@@ -52,10 +51,13 @@ src/app/
 
 ## Notas de mapeo con el backend
 
-- Todos los controladores CRUD exigen rol `Admin` (`[Authorize(Roles = "Admin")]`); el login
-  guarda el JWT y lo añade a cada petición vía `authInterceptor`.
-- `UserRolesController.Update` solo permite cambiar `Active` — el formulario de edición de
-  asignaciones únicamente expone ese campo, igual que el backend.
+- Todos los controladores CRUD exigen rol `admin` (`[Authorize(Roles = "admin")]`; los nombres
+  de rol se guardan en minúsculas por convención); el login guarda el JWT y lo añade a cada
+  petición vía `authInterceptor`.
+- `UserRolesController.Update` solo permite cambiar `Active` — al desmarcar un rol en la
+  edición de usuario, el front elimina la asignación (`DELETE`) en vez de solo desactivarla;
+  al volver a marcar un rol que ya tuvo asignación inactiva, la reactiva (`PUT active:true`)
+  en vez de duplicarla.
 - `ParkingStatusesController` no expone Create/Update/Delete — su listado es de solo lectura.
 - `Parking.Id` y `CounterConfig.Idpk`/`CounterId` son claves de negocio (`string`), no GUID;
   quedan de solo lectura al editar, igual que hace el backend (no se puede reasignar el Id).
