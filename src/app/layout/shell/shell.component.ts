@@ -9,6 +9,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../../core/services/auth.service';
 import { ChangePasswordDialogComponent } from '../../shared/change-password-dialog/change-password-dialog.component';
+import { THEME_LOGO_PATH } from '../../core/config/app-theme.config';
 
 interface NavLink {
   path: string;
@@ -49,6 +50,9 @@ export class ShellComponent {
   private readonly dialog = inject(MatDialog);
 
   readonly currentUser = this.authService.currentUser;
+
+  // Logo del tema activo (ver core/config/app-theme.config.ts).
+  readonly logoPath = THEME_LOGO_PATH;
 
   readonly navGroups: NavGroup[] = [
     {

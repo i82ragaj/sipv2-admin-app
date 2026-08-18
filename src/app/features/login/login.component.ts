@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
+import { THEME_LOGO_PATH } from '../../core/config/app-theme.config';
 
 interface LoginForm {
   login: FormControl<string>;
@@ -33,6 +34,9 @@ interface LoginForm {
 export class LoginComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+
+  // Logo del tema activo (ver core/config/app-theme.config.ts).
+  readonly logoPath = THEME_LOGO_PATH;
 
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);

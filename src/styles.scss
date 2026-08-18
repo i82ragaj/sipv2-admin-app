@@ -1,28 +1,19 @@
 /* Estilos globales de la aplicación */
 @use '@angular/material' as mat;
-@use './m3-theme' as theme;
+@use './m3-theme' as esparkingTheme;
+@use './m3-theme-eysa' as eysaTheme;
 
-// Tema Material generado a partir de la paleta de marca ESParking
-// (ver src/m3-theme.scss, regenerado con `ng generate @angular/material:m3-theme`).
-html {
-  @include mat.core();
-  @include mat.all-component-themes(theme.$light-theme);
-}
+@include mat.core();
 
-html,
-body {
-  height: 100%;
-  margin: 0;
-}
+// La app soporta dos temas de marca completos (paleta Material + colores de
+// marca en CSS custom properties); cuál está activo se fija en
+// core/config/app-theme.config.ts (ACTIVE_THEME), que añade la clase
+// correspondiente a <html> en main.ts. No hay selector de tema en la UI.
+html.theme-esparking {
+  @include mat.all-component-themes(esparkingTheme.$light-theme);
 
-body {
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
-  background-color: #f4f5f7;
-}
-
-// Colores de marca reutilizables fuera del sistema de tokens de Material
-// (extraídos de assets/logos/esparking_logo.svg)
-:root {
+  // Colores de marca reutilizables fuera del sistema de tokens de Material
+  // (extraídos de assets/logos/esparking_logo.svg).
   --brand-navy: #0b2e6b;
   --brand-blue: #1e4fa3;
   --brand-teal: #1e8c7e;
@@ -37,6 +28,39 @@ body {
     var(--brand-flag-yellow) 88%,
     var(--brand-flag-red) 100%
   );
+}
+
+// Segundo tema: EYSA. Colores muestreados del propio logotipo
+// (logo-eysa-color.png, ver m3-theme-eysa.scss) — sustitúyelos por el color
+// corporativo oficial si es distinto del muestreado.
+html.theme-eysa {
+  @include mat.all-component-themes(eysaTheme.$eysa-theme);
+
+  --brand-navy: #001f2a;
+  --brand-blue: #004358;
+  --brand-teal: #006686;
+  --brand-teal-light: #56c3f1;
+  --brand-flag-red: #e5007d;
+  --brand-flag-yellow: #aeca2b;
+  --brand-gradient: linear-gradient(
+    90deg,
+    var(--brand-navy) 0%,
+    var(--brand-blue) 35%,
+    var(--brand-teal-light) 70%,
+    var(--brand-flag-yellow) 88%,
+    var(--brand-flag-red) 100%
+  );
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background-color: #f4f5f7;
 }
 
 * {
@@ -82,6 +106,19 @@ body {
 
   .mat-mdc-header-row {
     background-color: rgba(30, 140, 126, 0.06);
+  }
+
+  // Un <tr> no pinta border-bottom de forma fiable en tablas HTML: hay que
+  // ponerlo en cada celda de cabecera.
+  .mat-mdc-header-cell {
+    border-bottom: 3px solid var(--brand-teal) !important;
+  }
+
+  // Filas "cebra": las pares llevan un fondo muy claro, en un verde-azulado
+  // (más frío que el teal de la cabecera) para que el listado se lea mejor
+  // por filas sin llamar demasiado la atención.
+  .mat-mdc-row:nth-child(even) {
+    background-color: rgba(20, 110, 160, 0.02);
   }
 }
 

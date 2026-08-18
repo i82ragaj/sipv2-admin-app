@@ -21,13 +21,67 @@ npm install
 npm start        # ng serve, http://localhost:4200
 ```
 
-`ng serve` usa `proxy.conf.json` para reenviar `/api/*` y `/login` a
+`ng serve` usa `proxy.conf.js` para reenviar `/api/*` y `/login` a
 `https://localhost:7119`. Esto evita tener que tocar el backend: **`Program.cs` no define
 ninguna política CORS**, así que sin el proxy (o sin configurar CORS en el backend) el
 navegador bloquearía las llamadas al abrir la app directamente contra otro origen/puerto.
+La regla de `/login` usa una función `bypass` (por eso es `.js` y no `.json`) para proxear
+al backend solo el `POST` real de login; una navegación `GET` a la página `/login` (recargar,
+pegar la URL) la sirve el propio dev server, no el backend.
 
 Para producción, edita `src/environments/environment.production.ts` con la URL real de la
 API antes de compilar (`npm run build`).
+
+## Tema visual (marca + logotipo)
+
+La app admite varios "temas de marca" completos (paleta de colores Material + logotipo
+propio), pero **no hay selector en la interfaz**: el tema activo se fija en un único sitio
+del código y requiere recompilar/redesplegar para cambiarlo.
+
+```ts
+// src/app/core/config/app-theme.config.ts
+export const ACTIVE_THEME: AppTheme = 'eysa'; // ← cambiar aquí ('esparking' | 'eysa')
+```
+
+Ese es el único cambio necesario para pasar de un tema a otro: `main.ts` lee esa constante
+y añade la clase `theme-<nombre>` a `<html>` antes de arrancar Angular (sin parpadeo de
+tema), y todo lo demás (paleta Material, colores de marca, logo del login y del menú
+lateral) se resuelve solo a partir de ella.
+
+Qué hay detrás de cada tema:
+
+| | ESParking (`esparking`) | EYSA (`eysa`) |
+|---|---|---|
+| Logo | `src/assets/logos/esparking_logo.svg` | `src/assets/logos/logo-eysa-color.png` |
+| Paleta Material | `src/m3-theme.scss` (`$light-theme`) | `src/m3-theme-eysa.scss` (`$eysa-theme`) |
+| Colores de marca (CSS vars) | `styles.scss` → bloque `html.theme-esparking` | `styles.scss` → bloque `html.theme-eysa` |
+
+Ambas hojas de estilo Material se generaron con el schematic oficial de Angular Material:
+
+```bash
+ng generate @angular/material:m3-theme --primary-color="#RRGGBB" --tertiary-color="#RRGGBB"
+```
+
+(el resultado se copió a mano a `m3-theme.scss`/`m3-theme-eysa.scss` y se le cambió el
+nombre de la variable exportada; ver el comentario de cabecera de cada archivo). Los colores
+de marca del tema EYSA se muestrearon por píxel del propio logo (`#004358` del texto,
+`#56C3F1` de uno de los puntos del icono) al no tener un color corporativo oficial en el
+momento de crear el tema — si EYSA tiene uno distinto, regenera la paleta con ese hex y
+sustituye `--brand-*` en el bloque `html.theme-eysa` de `styles.scss` por los tonos reales.
+
+### Añadir un tercer tema
+
+1. Genera su paleta con el comando anterior y guárdala como `src/m3-theme-<nombre>.scss`
+   (exportando `$<nombre>-theme`).
+2. En `styles.scss`: `@use` del nuevo archivo + un bloque `html.theme-<nombre> { @include
+   mat.all-component-themes(...); --brand-navy: ...; ... }` con sus `--brand-*` propios.
+3. Añade el logo a `src/assets/logos/` y regístralo en `THEME_LOGO_PATHS` en
+   `app-theme.config.ts`.
+4. Añade `'<nombre>'` al tipo `AppTheme`.
+
+No hace falta tocar `shell.component`, `login.component` ni ningún otro componente: todos
+leen el logo desde `THEME_LOGO_PATH` y los colores desde las CSS custom properties
+(`--brand-*`), que cambian solas según la clase puesta en `<html>`.
 
 ## Estructura
 
