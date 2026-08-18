@@ -10,7 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { finalize } from 'rxjs';
 import { ParkingService } from '../../core/services/parking.service';
 import { NotificationService } from '../../core/services/notification.service';
-import { Parking } from '../../core/models/parking.model';
+import { Parking, parkingTypeLabel } from '../../core/models/parking.model';
 import { ParkingFormDialogComponent } from './parking-form-dialog.component';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 
@@ -42,7 +42,9 @@ export class ParkingsListComponent implements OnInit {
     this.onlyActive() ? this.parkings().filter((parking) => parking.active) : this.parkings(),
   );
 
-  readonly displayedColumns = ['id', 'name', 'type', 'company', 'srv', 'actions'];
+  readonly displayedColumns = ['id', 'name', 'type', 'dacode', 'srv', 'actions'];
+
+  readonly parkingTypeLabel = parkingTypeLabel;
 
   ngOnInit(): void {
     this.load();

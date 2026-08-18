@@ -1,0 +1,119 @@
+<div class="page page-wide">
+  <div class="page-header">
+    <h1>Informe ERP</h1>
+    <div class="page-header-actions">
+      <button mat-icon-button matTooltip="Refrescar" [disabled]="loading()" (click)="load()">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="filters-row" [formGroup]="filtersForm">
+    <mat-form-field appearance="outline" class="filter-field filter-field-wide">
+      <mat-label>Parking</mat-label>
+      <mat-select formControlName="parkingId">
+        <mat-option [value]="null">Todos</mat-option>
+        @for (option of parkingOptions(); track option.id) {
+          <mat-option [value]="option.id">{{ option.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Desde</mat-label>
+      <input matInput [matDatepicker]="fromPicker" formControlName="dateFrom" />
+      <mat-datepicker-toggle matSuffix [for]="fromPicker" />
+      <mat-datepicker #fromPicker />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Hasta</mat-label>
+      <input matInput [matDatepicker]="toPicker" formControlName="dateTo" />
+      <mat-datepicker-toggle matSuffix [for]="toPicker" />
+      <mat-datepicker #toPicker />
+    </mat-form-field>
+
+    <button mat-button type="button" (click)="clearFilters()">Limpiar filtros</button>
+  </div>
+
+  <mat-card class="table-card">
+    @if (loading()) {
+      <div class="spinner-container">
+        <mat-spinner diameter="40" />
+      </div>
+    } @else if (filteredSummaries().length === 0) {
+      <div class="empty-state">No hay datos que coincidan con el filtro.</div>
+    } @else {
+      <table mat-table [dataSource]="pagedSummaries()" class="full-width-table">
+        <ng-container matColumnDef="idpk">
+          <th mat-header-cell *matHeaderCellDef>Parking</th>
+          <td mat-cell *matCellDef="let summary">{{ summary.idpk }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef>Fecha</th>
+          <td mat-cell *matCellDef="let summary">
+            {{ summary.date ? (summary.date | date: 'dd/MM/yyyy') : '—' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="operations">
+          <th mat-header-cell *matHeaderCellDef>Operaciones</th>
+          <td mat-cell *matCellDef="let summary">{{ summary.operations ?? '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="total">
+          <th mat-header-cell *matHeaderCellDef>Total</th>
+          <td mat-cell *matCellDef="let summary">
+            {{ summary.total !== null ? (summary.total | number: '1.2-2') : '—' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="cashTotal">
+          <th mat-header-cell *matHeaderCellDef>Efectivo</th>
+          <td mat-cell *matCellDef="let summary">
+            {{ summary.cashTotal !== null ? (summary.cashTotal | number: '1.2-2') : '—' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="cashNum">
+          <th mat-header-cell *matHeaderCellDef>Operaciones efectivo</th>
+          <td mat-cell *matCellDef="let summary">{{ summary.cashNum ?? '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="restTotal">
+          <th mat-header-cell *matHeaderCellDef>Resto</th>
+          <td mat-cell *matCellDef="let summary">
+            {{ summary.restTotal !== null ? (summary.restTotal | number: '1.2-2') : '—' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="restNum">
+          <th mat-header-cell *matHeaderCellDef>Operaciones Resto</th>
+          <td mat-cell *matCellDef="let summary">{{ summary.restNum ?? '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="invoiceNoMin">
+          <th mat-header-cell *matHeaderCellDef>Factura desde</th>
+          <td mat-cell *matCellDef="let summary">{{ summary.invoiceNoMin || '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="invoiceNoMax">
+          <th mat-header-cell *matHeaderCellDef>Factura hasta</th>
+          <td mat-cell *matCellDef="let summary">{{ summary.invoiceNoMax || '—' }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+
+      <mat-paginator
+        [length]="filteredSummaries().length"
+        [pageIndex]="pageIndex()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="pageSizeOptions"
+        (page)="onPage($event)"
+      />
+    }
+  </mat-card>
+</div>

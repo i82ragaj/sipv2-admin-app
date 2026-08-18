@@ -68,9 +68,14 @@ export class ShellComponent {
       ],
     },
     {
-      label: 'Estado',
+      // Solo la etiqueta cambia a "Consulta"; el rol que la controla sigue
+      // siendo "status" (no se renombra el rol, solo el texto del menú).
+      label: 'Consulta',
       requiredRole: 'status',
-      links: [{ path: '/parking-statuses', label: 'Estado de parkings', icon: 'monitor_heart' }],
+      links: [
+        { path: '/parking-statuses', label: 'Estado de parkings', icon: 'monitor_heart' },
+        { path: '/parking-summaries', label: 'Informe ERP', icon: 'summarize' },
+      ],
     },
   ];
 

@@ -1,14 +1,19 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { finalize } from 'rxjs';
 import { ParkingStatusService } from '../../core/services/parking-status.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { ParkingStatus } from '../../core/models/parking-status.model';
+import { parkingTypeLabel } from '../../core/models/parking.model';
+
+const IMPORTABLE_STATUSES = ['OK', 'ERROR'];
 
 @Component({
   selector: 'app-parking-statuses-list',
@@ -17,8 +22,9 @@ import { ParkingStatus } from '../../core/models/parking-status.model';
     DatePipe,
     MatTableModule,
     MatCardModule,
-    MatChipsModule,
+    MatButtonModule,
     MatIconModule,
+    MatSlideToggleModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
   ],
@@ -27,18 +33,35 @@ import { ParkingStatus } from '../../core/models/parking-status.model';
 })
 export class ParkingStatusesListComponent implements OnInit {
   private readonly parkingStatusService = inject(ParkingStatusService);
+  private readonly notificationService = inject(NotificationService);
 
   readonly statuses = signal<ParkingStatus[]>([]);
   readonly loading = signal(false);
+  readonly onlyActive = signal(true);
+  // Fila cuya importación diaria se está solicitando, para deshabilitar solo ese botón.
+  readonly requestingId = signal<string | null>(null);
+
+  // El parking vinculado puede estar desactivado (borrado lógico) aunque su
+  // fila de estado siga existiendo; "Solo activos" filtra por eso.
+  readonly filteredStatuses = computed(() =>
+    this.onlyActive() ? this.statuses().filter((status) => status.parkingActive) : this.statuses(),
+  );
+
+  readonly parkingTypeLabel = parkingTypeLabel;
 
   readonly displayedColumns = [
     'id',
-    'active',
+    'parkingName',
+    'parkingType',
+    'parkingServerIp',
+    'parkingJob',
+    'parkingLoadDate',
+    'lastCountTotals',
     'lastImported',
+    'lastImportedDuration',
     'lastImportedStatus',
     'lastImportedOk',
-    'lastCountTotals',
-    'lastImportedDuration',
+    'actions',
   ];
 
   ngOnInit(): void {
@@ -51,5 +74,26 @@ export class ParkingStatusesListComponent implements OnInit {
       .getAll()
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe((statuses) => this.statuses.set(statuses));
+  }
+
+  // El botón "Importación Diaria" se habilita si el parking aún no ha
+  // importado nunca (estado null) o si la última importación ya terminó (OK
+  // o ERROR); se deshabilita si ya está PENDIENTE, para no pedirla dos veces.
+  canRequestDailyImport(status: ParkingStatus): boolean {
+    return (
+      this.requestingId() !== status.id &&
+      (status.lastImportedStatus === null || IMPORTABLE_STATUSES.includes(status.lastImportedStatus))
+    );
+  }
+
+  requestDailyImport(status: ParkingStatus): void {
+    this.requestingId.set(status.id);
+    this.parkingStatusService
+      .requestDailyImport(status.id)
+      .pipe(finalize(() => this.requestingId.set(null)))
+      .subscribe(() => {
+        this.notificationService.success(`Importación diaria de "${status.id}" solicitada.`);
+        this.load();
+      });
   }
 }

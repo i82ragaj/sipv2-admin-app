@@ -1,0 +1,23 @@
+// 10 columnas: un poco más ancha que el .page normal (1200px), pero ya no
+// hace falta el ancho extra que necesitaba con todas las columnas de la vista.
+.page-wide {
+  max-width: 1400px;
+}
+
+.filters-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.filter-field {
+  width: 200px;
+}
+
+// El combo de parking muestra "Código - Nombre", necesita más ancho que
+// los campos de fecha.
+.filter-field-wide {
+  width: 280px;
+}

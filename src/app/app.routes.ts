@@ -11,7 +11,12 @@ export const routes: Routes = [
     loadComponent: () => import('./layout/shell/shell.component').then((m) => m.ShellComponent),
     canActivate: [authGuard],
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'users' },
+      { path: '', pathMatch: 'full', redirectTo: 'home' },
+      {
+        path: 'home',
+        loadComponent: () => import('./features/home/home.component').then((m) => m.HomeComponent),
+        title: 'Inicio · SIPV2 Admin',
+      },
       {
         path: 'users',
         loadComponent: () =>
@@ -37,6 +42,14 @@ export const routes: Routes = [
             (m) => m.ParkingStatusesListComponent,
           ),
         title: 'Estado de parkings · SIPV2 Admin',
+      },
+      {
+        path: 'parking-summaries',
+        loadComponent: () =>
+          import('./features/parking-summaries/parking-summaries-list.component').then(
+            (m) => m.ParkingSummariesListComponent,
+          ),
+        title: 'Informe ERP · SIPV2 Admin',
       },
       {
         path: 'counter-configs',

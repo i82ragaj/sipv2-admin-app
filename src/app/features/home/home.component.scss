@@ -1,0 +1,22 @@
+.home-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 104px - 48px);
+  padding: 24px;
+  text-align: center;
+}
+
+.home-card {
+  h1 {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--brand-navy);
+    margin: 0 0 8px;
+  }
+
+  p {
+    color: rgba(0, 0, 0, 0.54);
+    margin: 0;
+  }
+}

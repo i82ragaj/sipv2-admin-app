@@ -1,8 +1,6 @@
-.readonly-hint {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: rgba(0, 0, 0, 0.6);
-  font-size: 13px;
-  margin: -8px 0 16px;
+// Esta pantalla tiene muchas columnas: ensancha solo esta página (el resto
+// de listados se quedan con el ancho normal de .page, 1200px).
+.page-wide {
+  max-width: 1600px;
 }
+

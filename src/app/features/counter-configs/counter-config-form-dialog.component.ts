@@ -1,15 +1,18 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Observable, finalize } from 'rxjs';
 import { CounterConfigService } from '../../core/services/counter-config.service';
+import { ParkingService } from '../../core/services/parking.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { CounterConfig } from '../../core/models/counter-config.model';
+import { Parking } from '../../core/models/parking.model';
 
 interface CounterConfigForm {
   idpk: FormControl<string>;
@@ -28,6 +31,7 @@ interface CounterConfigForm {
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     MatButtonModule,
     MatSlideToggleModule,
     MatProgressSpinnerModule,
@@ -37,13 +41,27 @@ interface CounterConfigForm {
 
     <form [formGroup]="form" (ngSubmit)="submit()">
       <mat-dialog-content class="dialog-content">
-        <mat-form-field appearance="outline" class="form-field-full">
-          <mat-label>Id de parking (Idpk)</mat-label>
-          <input matInput formControlName="idpk" maxlength="10" [readonly]="isEdit" />
-          @if (form.controls.idpk.hasError('required')) {
-            <mat-error>El id de parking es obligatorio.</mat-error>
-          }
-        </mat-form-field>
+        @if (isEdit) {
+          <mat-form-field appearance="outline" class="form-field-full">
+            <mat-label>Id de parking (Idpk)</mat-label>
+            <input matInput formControlName="idpk" readonly />
+          </mat-form-field>
+        } @else {
+          <mat-form-field appearance="outline" class="form-field-full">
+            <mat-label>Id de parking (Idpk)</mat-label>
+            <mat-select formControlName="idpk" [disabled]="loadingParkings()">
+              @for (parking of parkings(); track parking.id) {
+                <mat-option [value]="parking.id">{{ parking.id }} — {{ parking.name || '—' }}</mat-option>
+              }
+            </mat-select>
+            @if (loadingParkings()) {
+              <mat-hint>Cargando parkings…</mat-hint>
+            }
+            @if (form.controls.idpk.hasError('required')) {
+              <mat-error>El id de parking es obligatorio.</mat-error>
+            }
+          </mat-form-field>
+        }
 
         <mat-form-field appearance="outline" class="form-field-full">
           <mat-label>Id de contador</mat-label>
@@ -95,14 +113,21 @@ interface CounterConfigForm {
     }
   `,
 })
-export class CounterConfigFormDialogComponent {
+export class CounterConfigFormDialogComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<CounterConfigFormDialogComponent>);
   private readonly counterConfigService = inject(CounterConfigService);
+  private readonly parkingService = inject(ParkingService);
   private readonly notificationService = inject(NotificationService);
   readonly data = inject<CounterConfig | null>(MAT_DIALOG_DATA);
 
   readonly isEdit = this.data !== null;
   readonly saving = signal(false);
+
+  // El id de parking (idpk) es una FK a MDParking: al crear se elige de un
+  // combo con los parkings activos; al editar es de solo lectura (no se
+  // puede reasignar, igual que el propio Id del parking).
+  readonly loadingParkings = signal(!this.isEdit);
+  readonly parkings = signal<Parking[]>([]);
 
   readonly form = new FormGroup<CounterConfigForm>({
     idpk: new FormControl(this.data?.idpk ?? '', { nonNullable: true, validators: [Validators.required, Validators.maxLength(10)] }),
@@ -112,6 +137,17 @@ export class CounterConfigFormDialogComponent {
     counterType: new FormControl(this.data?.counterType ?? '', { nonNullable: true, validators: [Validators.maxLength(10)] }),
     isActive: new FormControl(this.data?.isActive ?? true, { nonNullable: true }),
   });
+
+  ngOnInit(): void {
+    if (this.isEdit) {
+      return;
+    }
+
+    this.parkingService
+      .getAll()
+      .pipe(finalize(() => this.loadingParkings.set(false)))
+      .subscribe((parkings) => this.parkings.set(parkings.filter((parking) => parking.active)));
+  }
 
   submit(): void {
     if (this.form.invalid || this.saving()) {

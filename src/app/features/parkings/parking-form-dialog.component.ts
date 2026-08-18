@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angula
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -10,7 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Observable, finalize } from 'rxjs';
 import { ParkingService } from '../../core/services/parking.service';
 import { NotificationService } from '../../core/services/notification.service';
-import { Parking } from '../../core/models/parking.model';
+import { PARKING_FREQUENCIES, PARKING_TYPES, Parking } from '../../core/models/parking.model';
 
 interface ParkingForm {
   id: FormControl<string>;
@@ -58,6 +59,7 @@ function parseDateOnly(value: string | null): Date | null {
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     MatButtonModule,
     MatSlideToggleModule,
     MatDatepickerModule,
@@ -79,7 +81,11 @@ function parseDateOnly(value: string | null): Date | null {
 
           <mat-form-field appearance="outline" class="form-field-full">
             <mat-label>Tipo</mat-label>
-            <input matInput formControlName="type" maxlength="10" />
+            <mat-select formControlName="type">
+              @for (parkingType of parkingTypes; track parkingType.value) {
+                <mat-option [value]="parkingType.value">{{ parkingType.label }}</mat-option>
+              }
+            </mat-select>
             @if (form.controls.type.hasError('required')) {
               <mat-error>El tipo es obligatorio.</mat-error>
             }
@@ -101,7 +107,7 @@ function parseDateOnly(value: string | null): Date | null {
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-field-full">
-            <mat-label>Código DA</mat-label>
+            <mat-label>Departamento</mat-label>
             <input matInput formControlName="dacode" maxlength="10" />
           </mat-form-field>
 
@@ -141,7 +147,12 @@ function parseDateOnly(value: string | null): Date | null {
 
           <mat-form-field appearance="outline" class="form-field-full">
             <mat-label>Frecuencia</mat-label>
-            <input matInput formControlName="frecuency" maxlength="1" />
+            <mat-select formControlName="frecuency">
+              <mat-option value="">Sin especificar</mat-option>
+              @for (frecuency of parkingFrequencies; track frecuency.value) {
+                <mat-option [value]="frecuency.value">{{ frecuency.label }}</mat-option>
+              }
+            </mat-select>
           </mat-form-field>
         </div>
 
@@ -198,10 +209,12 @@ export class ParkingFormDialogComponent {
 
   readonly isEdit = this.data !== null;
   readonly saving = signal(false);
+  readonly parkingTypes = PARKING_TYPES;
+  readonly parkingFrequencies = PARKING_FREQUENCIES;
 
   readonly form = new FormGroup<ParkingForm>({
     id: new FormControl(this.data?.id ?? '', { nonNullable: true, validators: [Validators.required, Validators.maxLength(10)] }),
-    type: new FormControl(this.data?.type ?? '', { nonNullable: true, validators: [Validators.required, Validators.maxLength(10)] }),
+    type: new FormControl(this.data?.type ?? '', { nonNullable: true, validators: [Validators.required] }),
     srv: new FormControl(this.data?.srv ?? '', { nonNullable: true, validators: [Validators.maxLength(10)] }),
     name: new FormControl(this.data?.name ?? '', { nonNullable: true, validators: [Validators.maxLength(100)] }),
     company: new FormControl(this.data?.company ?? '', { nonNullable: true, validators: [Validators.maxLength(100)] }),
@@ -215,7 +228,7 @@ export class ParkingFormDialogComponent {
     serverIp: new FormControl(this.data?.serverIp ?? '', { nonNullable: true, validators: [Validators.maxLength(20)] }),
     job: new FormControl(this.data?.job ?? '', { nonNullable: true, validators: [Validators.maxLength(100)] }),
     loadDate: new FormControl(this.data?.loadDate?.substring(0, 8) ?? '', { nonNullable: true }),
-    frecuency: new FormControl(this.data?.frecuency ?? '', { nonNullable: true, validators: [Validators.maxLength(1)] }),
+    frecuency: new FormControl(this.data?.frecuency ?? '', { nonNullable: true }),
     active: new FormControl(this.data?.active ?? true, { nonNullable: true }),
   });
 
