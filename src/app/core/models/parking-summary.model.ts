@@ -24,6 +24,4 @@ export interface ParkingSummary {
   cashNum: number | null;
   restTotal: number | null;
   restNum: number | null;
-  discountTotal: number | null;
-  discountNum: number | null;
 }

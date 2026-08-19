@@ -21,23 +21,39 @@
 
     <mat-form-field appearance="outline" class="filter-field">
       <mat-label>Desde</mat-label>
-      <input matInput [matDatepicker]="fromPicker" formControlName="dateFrom" />
+      <input
+        matInput
+        [matDatepicker]="fromPicker"
+        [max]="filtersForm.controls.dateTo.value"
+        formControlName="dateFrom"
+      />
       <mat-datepicker-toggle matSuffix [for]="fromPicker" />
       <mat-datepicker #fromPicker />
+      @if (filtersForm.controls.dateFrom.hasError('matDatepickerMax')) {
+        <mat-error>"Desde" no puede ser posterior a "Hasta".</mat-error>
+      }
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="filter-field">
       <mat-label>Hasta</mat-label>
-      <input matInput [matDatepicker]="toPicker" formControlName="dateTo" />
+      <input
+        matInput
+        [matDatepicker]="toPicker"
+        [min]="filtersForm.controls.dateFrom.value"
+        formControlName="dateTo"
+      />
       <mat-datepicker-toggle matSuffix [for]="toPicker" />
       <mat-datepicker #toPicker />
+      @if (filtersForm.controls.dateTo.hasError('matDatepickerMin')) {
+        <mat-error>"Hasta" no puede ser anterior a "Desde".</mat-error>
+      }
     </mat-form-field>
 
     <button
       mat-flat-button
       type="button"
       color="primary"
-      [disabled]="loading()"
+      [disabled]="loading() || filtersForm.invalid"
       (click)="search()"
     >
       <mat-icon>search</mat-icon>
@@ -55,7 +71,26 @@
     } @else if (summaries().length === 0) {
       <div class="empty-state">No hay datos que coincidan con el filtro.</div>
     } @else {
-      <table mat-table [dataSource]="summaries()" class="full-width-table">
+      <table
+        mat-table
+        [dataSource]="summaries()"
+        multiTemplateDataRows
+        class="full-width-table detail-table"
+      >
+        <ng-container matColumnDef="expand">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let summary">
+            <button
+              mat-icon-button
+              type="button"
+              matTooltip="Ver detalle"
+              (click)="toggleRow(summary); $event.stopPropagation()"
+            >
+              <mat-icon>{{ expandedRow() === summary ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
         <ng-container matColumnDef="idpk">
           <th mat-header-cell *matHeaderCellDef>Parking</th>
           <td mat-cell *matCellDef="let summary">{{ summary.idpk }}</td>
@@ -114,8 +149,60 @@
           <td mat-cell *matCellDef="let summary">{{ summary.invoiceNoMax || '—' }}</td>
         </ng-container>
 
+        <ng-container matColumnDef="expandedDetail">
+          <td mat-cell *matCellDef="let summary" [attr.colspan]="displayedColumns.length" class="detail-cell">
+            @if (expandedRow() === summary) {
+              <div class="detail-grid">
+                @for (field of detailFields(summary); track field.label) {
+                  <div class="detail-item">
+                    <span class="detail-label">{{ field.label }}</span>
+                    <span class="detail-value">{{ field.value }}</span>
+                  </div>
+                }
+              </div>
+
+              @if (rowDetailsLoading()) {
+                <div class="detail-payments-loading">
+                  <mat-spinner diameter="24" />
+                </div>
+              } @else if (rowDetails().length > 0) {
+                <table class="detail-payments-table">
+                  <thead>
+                    <tr>
+                      <th>TipoPago</th>
+                      <th>Operaciones</th>
+                      <th>Total €</th>
+                      <th>Descontado €</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (payment of rowDetails(); track payment.paymentTypeId) {
+                      <tr>
+                        <td>{{ payment.paymentTypeName || '—' }}</td>
+                        <td>{{ payment.operations ?? '—' }}</td>
+                        <td>{{ payment.total !== null ? (payment.total | number: '1.2-2') : '—' }}</td>
+                        <td>{{ payment.discount !== null ? (payment.discount | number: '1.2-2') : '—' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+            }
+          </td>
+        </ng-container>
+
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          class="element-row"
+          (click)="toggleRow(row)"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: detailColumn; when: matchAllRows"
+          class="detail-row"
+        ></tr>
       </table>
 
       <mat-paginator

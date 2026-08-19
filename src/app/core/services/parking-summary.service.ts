@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ParkingSummary } from '../models/parking-summary.model';
+import { ParkingSummaryDetail } from '../models/parking-summary-detail.model';
 import { PagedResult } from '../models/paged-result.model';
 
 export interface ParkingSummaryQuery {
@@ -36,5 +37,15 @@ export class ParkingSummaryService {
     }
 
     return this.http.get<PagedResult<ParkingSummary>>(this.baseUrl, { params });
+  }
+
+  // Desglose por tipo de pago de una fila (panel de detalle desplegable).
+  // summaryId es el Id de esa fila; si es null, el backend cae a idpk+date.
+  getDetails(idpk: string, date: string, summaryId: string | null): Observable<ParkingSummaryDetail[]> {
+    let params = new HttpParams().set('idpk', idpk).set('date', date);
+    if (summaryId) {
+      params = params.set('summaryId', summaryId);
+    }
+    return this.http.get<ParkingSummaryDetail[]>(`${this.baseUrl}/details`, { params });
   }
 }
