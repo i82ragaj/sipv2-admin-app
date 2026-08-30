@@ -4,6 +4,10 @@
   </a>
 
   <mat-toolbar class="shell-toolbar">
+    <button mat-icon-button matTooltip="Mostrar/ocultar menú" (click)="toggleSidenav()">
+      <mat-icon>menu</mat-icon>
+    </button>
+
     <span class="shell-spacer"></span>
 
     @if (currentUser(); as user) {
@@ -27,7 +31,7 @@
 </div>
 
 <mat-sidenav-container class="shell-container">
-  <mat-sidenav mode="side" opened class="shell-sidenav">
+  <mat-sidenav mode="side" [opened]="sidenavOpened()" class="shell-sidenav">
     <mat-nav-list>
       @for (group of visibleNavGroups(); track group.label) {
         <div class="nav-group-label">{{ group.label }}</div>

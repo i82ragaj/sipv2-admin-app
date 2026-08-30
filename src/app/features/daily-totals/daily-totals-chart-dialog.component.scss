@@ -1,0 +1,118 @@
+.dialog-subtitle {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.dialog-content {
+  min-width: 320px;
+  max-width: 90vw;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+.empty-state {
+  padding: 24px 0;
+  color: rgba(0, 0, 0, 0.54);
+  text-align: center;
+}
+
+// Sin scroll: el ancho de barra se calcula a partir del nº de puntos (ver
+// DailyTotalsChartDialogComponent.bars) para que quepan todos en el ancho
+// del diálogo. `position: relative` es el ancla del tooltip, que se
+// posiciona en % (no en px) para seguir alineado con las barras al escalar.
+.chart-scroll {
+  position: relative;
+}
+
+// El SVG escala como una imagen: ancho al 100% del contenedor, alto
+// proporcional según el viewBox (ver [attr.width]/[attr.height] fijos en la
+// plantilla, que fijan la relación de aspecto).
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.gridline {
+  stroke: #e1e0d9;
+  stroke-width: 1;
+}
+
+.baseline {
+  stroke: #c3c2b7;
+  stroke-width: 1;
+}
+
+.axis-label {
+  fill: #898781;
+  font-size: 11px;
+}
+
+.y-label {
+  text-anchor: end;
+  dominant-baseline: middle;
+}
+
+.x-label {
+  text-anchor: middle;
+}
+
+.bar {
+  fill: var(--brand-blue);
+  transition: fill 0.1s ease;
+}
+
+.bar-hovered {
+  fill: var(--brand-navy);
+}
+
+// Zona de impacto invisible, cubre todo el hueco del punto (no solo la
+// barra visible, que con muchos puntos puede quedar muy fina).
+.bar-hit {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.bar-group:focus {
+  outline: none;
+}
+
+.bar-group:focus .bar {
+  fill: var(--brand-navy);
+}
+
+.bar-value-label {
+  text-anchor: middle;
+  font-size: 11px;
+  font-weight: 600;
+  fill: rgba(0, 0, 0, 0.87);
+}
+
+.tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%) translateY(-8px);
+  background: var(--brand-navy);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.tooltip-value {
+  font-weight: 600;
+}
+
+.tooltip-label {
+  color: rgba(255, 255, 255, 0.75);
+}

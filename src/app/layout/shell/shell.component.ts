@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -6,6 +6,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../../core/services/auth.service';
 import { ChangePasswordDialogComponent } from '../../shared/change-password-dialog/change-password-dialog.component';
@@ -40,6 +41,7 @@ const ADMIN_ROLE = 'admin';
     MatIconModule,
     MatButtonModule,
     MatMenuModule,
+    MatTooltipModule,
   ],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
@@ -53,6 +55,13 @@ export class ShellComponent {
 
   // Logo del tema activo (ver core/config/app-theme.config.ts).
   readonly logoPath = THEME_LOGO_PATH;
+
+  // Controla si el menú lateral está visible; el botón del toolbar lo alterna.
+  readonly sidenavOpened = signal(true);
+
+  toggleSidenav(): void {
+    this.sidenavOpened.update((opened) => !opened);
+  }
 
   readonly navGroups: NavGroup[] = [
     {
@@ -77,8 +86,10 @@ export class ShellComponent {
       label: 'Consulta',
       requiredRole: 'status',
       links: [
-        { path: '/parking-statuses', label: 'Estado de parkings', icon: 'monitor_heart' },
+        { path: '/parking-statuses', label: 'Estado de integración', icon: 'monitor_heart' },
         { path: '/parking-summaries', label: 'Informe ERP', icon: 'summarize' },
+        { path: '/daily-totals', label: 'Ingresos Diarios', icon: 'payments' },
+        { path: '/occupancy', label: 'Ocupación Actual', icon: 'garage' },
       ],
     },
   ];

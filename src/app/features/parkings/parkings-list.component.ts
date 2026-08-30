@@ -9,8 +9,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 import { finalize } from 'rxjs';
 import { ParkingService } from '../../core/services/parking.service';
+import { ParkingTypeService } from '../../core/services/parking-type.service';
 import { NotificationService } from '../../core/services/notification.service';
-import { Parking, parkingTypeLabel } from '../../core/models/parking.model';
+import { Parking } from '../../core/models/parking.model';
+import { ParkingType, parkingTypeLabel } from '../../core/models/parking-type.model';
 import { ParkingFormDialogComponent } from './parking-form-dialog.component';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 
@@ -31,10 +33,12 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 })
 export class ParkingsListComponent implements OnInit {
   private readonly parkingService = inject(ParkingService);
+  private readonly parkingTypeService = inject(ParkingTypeService);
   private readonly notificationService = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
 
   readonly parkings = signal<Parking[]>([]);
+  readonly parkingTypes = signal<ParkingType[]>([]);
   readonly loading = signal(false);
   readonly onlyActive = signal(true);
 
@@ -44,9 +48,12 @@ export class ParkingsListComponent implements OnInit {
 
   readonly displayedColumns = ['id', 'name', 'type', 'dacode', 'srv', 'actions'];
 
-  readonly parkingTypeLabel = parkingTypeLabel;
+  typeLabel(typeId: string): string {
+    return parkingTypeLabel(typeId, this.parkingTypes());
+  }
 
   ngOnInit(): void {
+    this.parkingTypeService.getAll().subscribe((types) => this.parkingTypes.set(types));
     this.load();
   }
 

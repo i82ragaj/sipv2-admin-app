@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,8 +10,10 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Observable, finalize } from 'rxjs';
 import { ParkingService } from '../../core/services/parking.service';
+import { ParkingTypeService } from '../../core/services/parking-type.service';
 import { NotificationService } from '../../core/services/notification.service';
-import { PARKING_FREQUENCIES, PARKING_TYPES, Parking } from '../../core/models/parking.model';
+import { PARKING_FREQUENCIES, Parking } from '../../core/models/parking.model';
+import { ParkingType } from '../../core/models/parking-type.model';
 
 interface ParkingForm {
   id: FormControl<string>;
@@ -82,8 +84,8 @@ function parseDateOnly(value: string | null): Date | null {
           <mat-form-field appearance="outline" class="form-field-full">
             <mat-label>Tipo</mat-label>
             <mat-select formControlName="type">
-              @for (parkingType of parkingTypes; track parkingType.value) {
-                <mat-option [value]="parkingType.value">{{ parkingType.label }}</mat-option>
+              @for (parkingType of parkingTypes(); track parkingType.id) {
+                <mat-option [value]="parkingType.id">{{ parkingType.name }}</mat-option>
               }
             </mat-select>
             @if (form.controls.type.hasError('required')) {
@@ -201,16 +203,21 @@ function parseDateOnly(value: string | null): Date | null {
     }
   `,
 })
-export class ParkingFormDialogComponent {
+export class ParkingFormDialogComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<ParkingFormDialogComponent>);
   private readonly parkingService = inject(ParkingService);
+  private readonly parkingTypeService = inject(ParkingTypeService);
   private readonly notificationService = inject(NotificationService);
   readonly data = inject<Parking | null>(MAT_DIALOG_DATA);
 
   readonly isEdit = this.data !== null;
   readonly saving = signal(false);
-  readonly parkingTypes = PARKING_TYPES;
+  readonly parkingTypes = signal<ParkingType[]>([]);
   readonly parkingFrequencies = PARKING_FREQUENCIES;
+
+  ngOnInit(): void {
+    this.parkingTypeService.getAll().subscribe((types) => this.parkingTypes.set(types));
+  }
 
   readonly form = new FormGroup<ParkingForm>({
     id: new FormControl(this.data?.id ?? '', { nonNullable: true, validators: [Validators.required, Validators.maxLength(10)] }),

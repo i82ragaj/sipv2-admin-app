@@ -16,6 +16,12 @@ import { User } from '../../core/models/user.model';
 import { Rol } from '../../core/models/rol.model';
 import { UserRol } from '../../core/models/user-rol.model';
 
+// Roles ordenados por nombre en el checklist del diálogo (crear y editar):
+// la API los devuelve en su propio orden (inserción/id), no alfabético.
+function sortByName(roles: Rol[]): Rol[] {
+  return [...roles].sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+}
+
 interface UserForm {
   name: FormControl<string>;
   lastName: FormControl<string>;
@@ -221,14 +227,14 @@ export class UserFormDialogComponent implements OnInit {
       this.rolService
         .getAll()
         .pipe(finalize(() => this.loadingRoles.set(false)))
-        .subscribe((roles) => this.roles.set(roles));
+        .subscribe((roles) => this.roles.set(sortByName(roles)));
       return;
     }
 
     forkJoin([this.rolService.getAll(), this.userRolService.getAll()])
       .pipe(finalize(() => this.loadingRoles.set(false)))
       .subscribe(([roles, userRoles]) => {
-        this.roles.set(roles);
+        this.roles.set(sortByName(roles));
 
         const selected = new Set<string>();
         for (const userRol of userRoles) {

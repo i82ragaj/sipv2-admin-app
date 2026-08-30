@@ -1,0 +1,21 @@
+.page-wide {
+  max-width: 1200px;
+}
+
+.filters-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.filter-field {
+  width: 200px;
+}
+
+// El combo de parking muestra "Código - Nombre", necesita más ancho que
+// los campos de fecha.
+.filter-field-wide {
+  width: 280px;
+}

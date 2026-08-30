@@ -41,7 +41,7 @@ export const routes: Routes = [
           import('./features/parking-statuses/parking-statuses-list.component').then(
             (m) => m.ParkingStatusesListComponent,
           ),
-        title: 'Estado de parkings · SIPV2 Admin',
+        title: 'Estado de integración · SIPV2 Admin',
       },
       {
         path: 'parking-summaries',
@@ -50,6 +50,22 @@ export const routes: Routes = [
             (m) => m.ParkingSummariesListComponent,
           ),
         title: 'Informe ERP · SIPV2 Admin',
+      },
+      {
+        path: 'daily-totals',
+        loadComponent: () =>
+          import('./features/daily-totals/daily-totals-list.component').then(
+            (m) => m.DailyTotalsListComponent,
+          ),
+        title: 'Ingresos Diarios · SIPV2 Admin',
+      },
+      {
+        path: 'occupancy',
+        loadComponent: () =>
+          import('./features/occupancy/occupancy-list.component').then(
+            (m) => m.OccupancyListComponent,
+          ),
+        title: 'Ocupación Actual · SIPV2 Admin',
       },
       {
         path: 'counter-configs',

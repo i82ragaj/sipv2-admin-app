@@ -1,0 +1,109 @@
+<h2 mat-dialog-title>
+  Evolución de ingresos horarios
+  <span class="dialog-subtitle">{{ data.parkingLabel }} · {{ dateRangeLabel() }}</span>
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  @if (loading()) {
+    <div class="spinner-container">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (points().length === 0) {
+    <div class="empty-state">Este parking no tiene lecturas de ingresos en los últimos 7 días.</div>
+  } @else {
+    <div class="chart-scroll">
+      <svg
+        class="chart"
+        [attr.width]="chartWidth"
+        [attr.height]="chartHeight"
+        [attr.viewBox]="'0 0 ' + chartWidth + ' ' + chartHeight"
+      >
+        <!-- Gridlines + ticks del eje Y -->
+        @for (tick of yTicks(); track tick) {
+          <line
+            class="gridline"
+            [attr.x1]="paddingLeft"
+            [attr.x2]="plotRight"
+            [attr.y1]="yToPixel(tick)"
+            [attr.y2]="yToPixel(tick)"
+          />
+          <text class="axis-label y-label" [attr.x]="paddingLeft - 8" [attr.y]="yToPixel(tick) + 4">
+            {{ tick | number: '1.0-0' }}
+          </text>
+        }
+
+        <!-- Línea base (0) reforzada -->
+        <line
+          class="baseline"
+          [attr.x1]="paddingLeft"
+          [attr.x2]="plotRight"
+          [attr.y1]="baselineY()"
+          [attr.y2]="baselineY()"
+        />
+
+        <!-- Barras -->
+        @for (bar of bars(); track bar.date.getTime(); let i = $index) {
+          <g
+            class="bar-group"
+            tabindex="0"
+            role="img"
+            [attr.aria-label]="formatHour(bar.date) + ': ' + (bar.amount | number: '1.2-2') + ' €'"
+            (pointerenter)="hoveredIndex.set(i)"
+            (pointerleave)="hoveredIndex.set(null)"
+            (focus)="hoveredIndex.set(i)"
+            (blur)="hoveredIndex.set(null)"
+          >
+            <!-- Zona de impacto: todo el hueco asignado a este punto (no solo
+                 la barra visible, que puede quedar muy fina), cubre todo el
+                 alto del gráfico. -->
+            <rect
+              class="bar-hit"
+              [attr.x]="bar.slotX"
+              [attr.y]="16"
+              [attr.width]="bar.slotWidth"
+              [attr.height]="chartHeight - 16 - 40"
+            />
+            <rect
+              class="bar"
+              [class.bar-hovered]="hoveredIndex() === i"
+              [attr.x]="bar.x"
+              [attr.y]="bar.y"
+              [attr.width]="bar.width"
+              [attr.height]="Math.max(bar.height, 1)"
+              rx="4"
+            />
+            @if (i === maxBarIndex()) {
+              <text class="bar-value-label" [attr.x]="bar.x + bar.width / 2" [attr.y]="bar.y - 6">
+                {{ bar.amount | number: '1.0-0' }} €
+              </text>
+            }
+            @if (bar.isFirstOfDay) {
+              <text class="axis-label x-label" [attr.x]="bar.x + bar.width / 2" [attr.y]="chartHeight - 18">
+                {{ formatTick(bar.date) }}
+              </text>
+            }
+          </g>
+        }
+      </svg>
+
+      @if (hoveredBar(); as bar) {
+        <!-- El SVG escala fluido (width:100%, viewBox fijo), así que la
+             posición del tooltip se expresa en % del lienzo de diseño, no en
+             píxeles: así sigue alineada con la barra a cualquier tamaño
+             renderizado. -->
+        <div
+          class="tooltip"
+          [style.left]="((bar.x + bar.width / 2) / chartWidth) * 100 + '%'"
+          [style.top]="(bar.y / chartHeight) * 100 + '%'"
+        >
+          <div class="tooltip-value">{{ bar.amount | number: '1.2-2' }} €</div>
+          <div class="tooltip-label">{{ formatTick(bar.date) }} · {{ formatHour(bar.date) }}</div>
+        </div>
+      }
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>Cerrar</button>
+</mat-dialog-actions>

@@ -9,9 +9,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { finalize } from 'rxjs';
 import { ParkingStatusService } from '../../core/services/parking-status.service';
+import { ParkingTypeService } from '../../core/services/parking-type.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { ParkingStatus } from '../../core/models/parking-status.model';
-import { parkingTypeLabel } from '../../core/models/parking.model';
+import { ParkingType, parkingTypeLabel } from '../../core/models/parking-type.model';
 
 const IMPORTABLE_STATUSES = ['OK', 'ERROR'];
 
@@ -33,9 +34,11 @@ const IMPORTABLE_STATUSES = ['OK', 'ERROR'];
 })
 export class ParkingStatusesListComponent implements OnInit {
   private readonly parkingStatusService = inject(ParkingStatusService);
+  private readonly parkingTypeService = inject(ParkingTypeService);
   private readonly notificationService = inject(NotificationService);
 
   readonly statuses = signal<ParkingStatus[]>([]);
+  readonly parkingTypes = signal<ParkingType[]>([]);
   readonly loading = signal(false);
   readonly onlyActive = signal(true);
   // Fila cuya importación diaria se está solicitando, para deshabilitar solo ese botón.
@@ -47,7 +50,9 @@ export class ParkingStatusesListComponent implements OnInit {
     this.onlyActive() ? this.statuses().filter((status) => status.parkingActive) : this.statuses(),
   );
 
-  readonly parkingTypeLabel = parkingTypeLabel;
+  typeLabel(typeId: string): string {
+    return parkingTypeLabel(typeId, this.parkingTypes());
+  }
 
   readonly displayedColumns = [
     'id',
@@ -65,6 +70,7 @@ export class ParkingStatusesListComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.parkingTypeService.getAll().subscribe((types) => this.parkingTypes.set(types));
     this.load();
   }
 
