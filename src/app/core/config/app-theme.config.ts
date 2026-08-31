@@ -13,7 +13,7 @@
 export type AppTheme = 'esparking' | 'eysa';
 
 // ← Único punto que hay que tocar para cambiar de tema.
-export const ACTIVE_THEME: AppTheme = 'eysa';
+export const ACTIVE_THEME: AppTheme = 'esparking';
 
 export const THEME_LOGO_PATHS: Record<AppTheme, string> = {
   esparking: 'assets/logos/esparking_logo.svg',
